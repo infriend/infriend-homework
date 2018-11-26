@@ -180,12 +180,26 @@ int depthcount(bitree *t)
     }
 }
 
+int leafcount(bitree *t)
+{
+    static int n = 0;
+    if (t==NULL) ;
+    else
+    {
+        if (t->lc == NULL && t->rc == NULL) ++n;
+        leafcount(t->lc);
+        leafcount(t->rc);
+    }
+
+    return n;
+}
+
 int main()
 {
     bitree *t;
-    
+
     printf("Recurtive way:\n");
-    printf("initializing the tree:");
+    printf("initializing the tree:\n");
     t = inittree01();
     printf("\nPreorder travel:\n");
     preordtra(t);
@@ -196,7 +210,8 @@ int main()
     printf("\nLevel travel:\n");
     lvtra(t);
     printf("The number of the nodes: %d\n", nodecount(t));
-    printf("The depth of the tree: %d", depthcount(t));
+    printf("The depth of the tree: %d\n", depthcount(t));
+    printf("The leaves of the tree: %d\n", leafcount(t));
 
 
     return 0;
