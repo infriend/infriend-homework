@@ -4,6 +4,7 @@
 */
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
 #include <stack>
 
 typedef struct bitree
@@ -24,7 +25,7 @@ typedef struct
     qnode *rear;
 } queue;
 
-void *initque(queue *q)
+void initque(queue *q)
 {
     q->front = q->rear = (qnode*) malloc(sizeof(qnode));
     q->front->next = NULL;//head node
@@ -67,7 +68,7 @@ bitree *inittree01()
     int n;
     bitree *t;
     scanf("%d", &n);
-    if (n) t = NULL;
+    if (!n) t = NULL;
     else
     {
         t = (bitree*) malloc(sizeof(bitree));
@@ -149,7 +150,54 @@ void lvtra(bitree *t)
     }
 }
 
+int nodecount(bitree *t)
+{
+    static int n = 0;
+    if (t==NULL) ;
+    else
+    {
+        ++n;
+        nodecount(t->lc);
+        nodecount(t->rc);
+    }
+
+    return n;
+}
+
+int depthcount(bitree *t)
+{
+    int max = 0, ld = 0, rd = 0;
+    if (t!=NULL)
+    {
+        ld = depthcount(t->lc);
+        rd = depthcount(t->rc);
+        max = ld > rd ? ld : rd;
+        return max + 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 int main()
 {
+    bitree *t;
+    
+    printf("Recurtive way:\n");
+    printf("initializing the tree:");
+    t = inittree01();
+    printf("\nPreorder travel:\n");
+    preordtra(t);
+    printf("\nMidorder travel:\n");
+    midordtra(t);
+    printf("\nPosorder travel:\n");
+    posordtra(t);
+    printf("\nLevel travel:\n");
+    lvtra(t);
+    printf("The number of the nodes: %d\n", nodecount(t));
+    printf("The depth of the tree: %d", depthcount(t));
 
+
+    return 0;
 }
