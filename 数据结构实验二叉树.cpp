@@ -4,6 +4,7 @@
 */
 #include <cstdio>
 #include <cstdlib>
+#include <stack>
 
 typedef struct bitree
 {
@@ -23,13 +24,6 @@ typedef struct
     qnode *rear;
 } queue;
 
-typedef struct
-{
-    int *base;
-    int *top;
-    int stacksize;
-} sqstack;
-
 void *initque(queue *q)
 {
     q->front = q->rear = (qnode*) malloc(sizeof(qnode));
@@ -44,6 +38,15 @@ void enqueue(queue *q, bitree *e)
     p->next = NULL;
     q->rear->next = p;
     q->rear = p;
+}
+
+int emptyque(queue *q)
+{
+    if (q->rear == q->front)
+    {
+        return 0;
+    }
+    else return 1;
 }
 
 bitree dequeue(queue *q)
@@ -133,5 +136,20 @@ void posordtra(bitree *t)
 void lvtra(bitree *t)
 {
     queue q;
+    bitree e;
     initque(&q);
+    enqueue(&q, t);
+    while (!emptyque(&q))
+    {
+        e = dequeue(&q);
+
+        if (t->lc!=NULL) enqueue(&q, t->lc);
+        if (t->rc!=NULL) enqueue(&q, t->rc);
+        printf("%4d", e.data);
+    }
+}
+
+int main()
+{
+
 }
