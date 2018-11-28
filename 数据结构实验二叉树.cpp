@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <stack>
+using namespace std;
 
 typedef struct bitree
 {
@@ -194,9 +195,98 @@ int leafcount(bitree *t)
     return n;
 }
 
+bitree *inittree02()
+{
+    bitree *t, *s[20], *q;
+    int i, j, data;
+    printf("i,data = ");
+    scanf("%d,%d", &i, &data);
+    while (i)
+    {
+        q = (bitree*) malloc(sizeof(bitree));
+        q->data = data;
+        q->lc = q->rc = NULL;
+        s[i] = q;
+        if (i==1) t = q;
+        else
+        {
+            j = i/2;
+            if (i%2 == 0) s[j]->lc = q;
+            else s[j]->rc = q;
+        }
+        printf("i,data = ");
+        scanf("%d,%d", &i, &data);
+    }
+
+    return t;
+}
+
+void preord02(bitree *t)
+{
+    bitree *p;
+    stack<bitree*> s;
+    p = t;
+    if (!p) printf("Erorr!\n");
+    else
+    {
+        while (p||!s.empty())
+        {
+            if (p)
+            {
+                s.push(p);
+                printf("%4d", p->data);
+                p = p->lc;
+            }
+            else
+            {
+                p = s.top();
+                s.pop();
+                p = p->rc;
+            }
+        }
+    }
+}
+
+void midord02(bitree *t)
+{
+    bitree *p;
+    stack<bitree*> s;
+    p = t;
+    s.push(p);
+    while (!s.empty()&&p)
+    {
+        if (p)
+        {
+            s.push(p);
+            p = p->lc;
+        }
+        else
+        {
+            printf("%4d", s.top()->data);
+            s.pop();
+            p = p->rc;
+        }
+    }
+}
+
+void posord02(bitree *t)
+{
+    bitree *p;
+    stack<bitree*> s;
+    p = t;
+    while (p||!s.empty())
+    {
+        if (p)
+        {
+            printf("%4d");
+        }
+    }
+}
+
+
 int main()
 {
-    bitree *t;
+    bitree *t, *y;
 
     printf("Recurtive way:\n");
     printf("initializing the tree:\n");
@@ -212,6 +302,16 @@ int main()
     printf("The number of the nodes: %d\n", nodecount(t));
     printf("The depth of the tree: %d\n", depthcount(t));
     printf("The leaves of the tree: %d\n", leafcount(t));
+
+    printf("Normal way:\n");
+    printf("initializing the tree:\n");
+    y = inittree02();
+    printf("\nPreorder travel:\n");
+    preord02(y);
+    printf("\nMidorder travel:\n");
+    midord02(y);
+    printf("\nPosorder travel:\n");
+
 
 
     return 0;
