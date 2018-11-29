@@ -333,7 +333,6 @@ int main()
     midord02(y);
     printf("\nPosorder travel:\n");
     posord02(y);
-    printf("%$");
     printf("\n");
 
     return 0;
