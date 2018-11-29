@@ -252,8 +252,7 @@ void midord02(bitree *t)
     bitree *p;
     stack<bitree*> s;
     p = t;
-    s.push(p);
-    while (!s.empty()&&p)
+    while (!s.empty()||p)
     {
         if (p)
         {
@@ -262,7 +261,8 @@ void midord02(bitree *t)
         }
         else
         {
-            printf("%4d", s.top()->data);
+            p = s.top();
+            printf("%4d", p->data);
             s.pop();
             p = p->rc;
         }
@@ -271,14 +271,35 @@ void midord02(bitree *t)
 
 void posord02(bitree *t)
 {
-    bitree *p;
-    stack<bitree*> s;
-    p = t;
-    while (p||!s.empty())
+    typedef struct bttag
     {
-        if (p)
+        bitree t;
+        int tag;
+    } bttag;
+    bttag t0, t1;
+    stack<bttag> s;
+
+    while (t||!s.empty())
+    {
+        while (t)
         {
-            printf("%4d");
+            t0.t = *t;
+            t0.tag = 0;
+            t = t->lc;
+            s.push(t0);
+        }
+        while (!s.empty()&&s.top().tag==1)
+        {
+            printf("%4d", s.top().t.data);
+            s.pop();
+        }
+        if (!s.empty())
+        {
+            t1 = s.top();
+            s.pop();
+            t1.tag = 1;
+            s.push(t1);
+            t = s.top().t.rc;
         }
     }
 }
@@ -311,8 +332,9 @@ int main()
     printf("\nMidorder travel:\n");
     midord02(y);
     printf("\nPosorder travel:\n");
-
-
+    posord02(y);
+    printf("%$");
+    printf("\n");
 
     return 0;
 }
