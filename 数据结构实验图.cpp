@@ -99,18 +99,24 @@ algraph algcreat(void)
         scanf("%d", &t.vex[i].data);
         printf("Enter the vexnum:(-1 means the end of the operation)");
         p = (arcnode*) malloc(sizeof(arcnode));
+        t.vex[i].firstarc = NULL;
         scanf("%d", &e);
+        if (e!=-1)
+        {
+            t.vex[i].firstarc = p;
+            q = p;
+        }
         while (e!=-1)
         {
-            p->adjvex = e;
+            q->adjvex = e;
+            p = q;
             k++;
             q = (arcnode*) malloc(sizeof(arcnode));
             p->next = q;
-            p = q;
             scanf("%d", &e);
         }
         p->next = NULL;
-        free(p);
+        free(q);
     }
     t.arcnum = k;
 
@@ -174,12 +180,17 @@ void findalg_indegree(algraph* g, int a[])
     int i;
     arcnode *p;
 
+    for (i = 0; i < 20; ++i)
+    {
+        a[i] = 0;
+    }
     for (i = 0; i < g->vexnum; ++i)
     {
         p = g->vex[i].firstarc;
-        while (p)
+
+        while (p!=NULL)
         {
-            a[p->adjvex]++;
+            ++a[p->adjvex];
             p = p->next;
         }
     }
@@ -187,9 +198,10 @@ void findalg_indegree(algraph* g, int a[])
 
 void toposort(void)
 {
-    int i, count;
+    int i, count, k;
     int a[20];
     algraph g;
+    arcnode *p;
     g = algcreat();
     findalg_indegree(&g, a);
     stack<int> s;
@@ -201,18 +213,31 @@ void toposort(void)
     count = 0;
     while (!s.empty())
     {
-        printf("%-4d", s.top());
+        printf("%-4d", i = s.top());
         s.pop();
         ++count;
-        
+        for (p = g.vex[i].firstarc; p; p = p->next)
+        {
+            k = p->adjvex;
+            if (!(--a[k])) s.push(k);
+        }
     }
-
-
+    if (count < g.vexnum)
+    {
+        printf("Error\n");
+    }
+    else
+    {
+        printf("Success\n");
+    }
 }
 
 int main()
 {
-    mcst_prim();
+    //printf("Prim:\n");
+    //mcst_prim();
+    printf("toposort:\n");
+    toposort();
 
     return 0;
 }
