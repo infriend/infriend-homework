@@ -54,7 +54,6 @@ int main()
 {
     int num;
     int a[20001];
-    srand((unsigned) time(NULL));
     for (int i = 1; i < 20001; ++i)
     {
         a[i] = i;
