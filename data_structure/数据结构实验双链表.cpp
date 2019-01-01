@@ -26,7 +26,7 @@ struct worker *creat()
 	p1 = (struct worker *)malloc(LEN);
 	p2 = p1;
 	p1 = (struct worker *)malloc(LEN);
-	printf("ÇëÊäÈë¹¤ÈËĞÅÏ¢£¬0,0ÎªÍ£Ö¹ÊäÈë\n");
+	printf("è¯·è¾“å…¥å·¥äººä¿¡æ¯ï¼Œ0,0ä¸ºåœæ­¢è¾“å…¥\n");
 	printf("NUM ");
 	scanf("%ld",&p1->num);
 	printf("NAME ");
@@ -98,7 +98,7 @@ void print(struct worker *head)
 	struct worker *p;
 	FILE *fp;
 	fp=fopen("workers.txt","r");
-	printf("\n´Ë±íÖĞ¹²ÓĞ%d¸ö¼ÇÂ¼:\n",n);
+	printf("\næ­¤è¡¨ä¸­å…±æœ‰%dä¸ªè®°å½•:\n",n);
 	p = head->next;
 	if (head->next!=NULL)
 	{
@@ -127,11 +127,11 @@ void total(struct worker *head)
 			total_realsa += p->real_sal;
 			p=p->next;
     	} while (p!=NULL);
-    printf("©°©¤©¤©¤©¤©¤©Ğ©¤©¤©¤©¤©¤©Ğ©¤©¤©¤©¤©¤©Ğ©¤©¤©¤©¤©¤©´\n");
-    	printf("©¦×Ü¹¤×Ê    ©¦ ×Ü²¹Ìù   ©¦ ×ÜË®µç   ©¦ ×ÜÊµ·¢   ©¦\n");
-    	printf("©À©¤©¤©¤©¤©¤©à©¤©¤©¤©¤©¤©à©¤©¤©¤©¤©¤©à©¤©¤©¤©¤©¤©È\n");
-    	printf("©¦%.2f   ©¦%.2f    ©¦%.2f    ©¦%.2f   ©¦\n", total_salary, total_bonus, total_expense, total_realsa);
-    	printf("©¸©¤©¤©¤©¤©¤©Ø©¤©¤©¤©¤©¤©Ø©¤©¤©¤©¤©¤©Ø©¤©¤©¤©¤©¤©¼\n");
+    printf("â”Œâ”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”\n");
+    	printf("â”‚æ€»å·¥èµ„    â”‚ æ€»è¡¥è´´   â”‚ æ€»æ°´ç”µ   â”‚ æ€»å®å‘   â”‚\n");
+    	printf("â”œâ”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¤\n");
+    	printf("â”‚%.2f   â”‚%.2f    â”‚%.2f    â”‚%.2f   â”‚\n", total_salary, total_bonus, total_expense, total_realsa);
+    	printf("â””â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”˜\n");
     }
 }
 
@@ -173,8 +173,8 @@ struct worker *del(struct worker *head, long num)
 	    printf("delete:%ld\n",num);
 	    n=n-1;
 	}
-	else printf("%ld ²»´æÔÚ!\n",num);
-	printf("ÒÑÉ¾³ı£¬Çë×¢Òâ±£´æ¡£");
+	else printf("%ld ä¸å­˜åœ¨!\n",num);
+	printf("å·²åˆ é™¤ï¼Œè¯·æ³¨æ„ä¿å­˜ã€‚");
     end:
 	return(head);
 }
@@ -228,7 +228,7 @@ struct worker *sort(struct worker *head)
 struct worker *insert(struct worker *head)
 {
 	struct worker *p1, *p2, *p3;
-	printf("ÊäÈë²åÈëÏî¹¤ºÅ£¬ĞÕÃû£¬»ù±¾¹¤×Ê£¬²¹Ìù£¬Ë®µç·Ñ");
+	printf("è¾“å…¥æ’å…¥é¡¹å·¥å·ï¼Œå§“åï¼ŒåŸºæœ¬å·¥èµ„ï¼Œè¡¥è´´ï¼Œæ°´ç”µè´¹");
 	printf("\n");
 	p3 = (struct worker *)malloc(LEN);
 	printf("NUM ");
@@ -281,7 +281,7 @@ struct worker *insert(struct worker *head)
 void search(struct worker *head, long num)
 {
 	struct worker *p1;
-	if (head->next==NULL) printf("\nÎª¿Õ£¬ÎŞ·¨²é!\n");
+	if (head->next==NULL) printf("\nä¸ºç©ºï¼Œæ— æ³•æŸ¥!\n");
     else
     {
     	p1 = head->next;
@@ -343,18 +343,18 @@ int main()
 
     while (c!=9)
     {
-    	printf("      ¹¤ÈË¹¤×Ê¹ÜÀí\n");
-		printf("        1.´´½¨Á´±í\n");
-		printf("        2.¹¤ºÅ²éÕÒ\n");
-		printf("        3.ÌõÄ¿²åÈë\n");
-		printf("        4.ÌõÄ¿É¾³ı\n");
-		printf("        5.ÇóÊµ·¢¹¤×Ê\n");
-		printf("        6.¹¤×ÊÅÅĞò\n");
-		printf("        7.¸÷Ïî¹¤×Ê×Ü¶î\n"); 
-		printf("        8.±£´æ\n");
-		printf("        9.ÍË³ö\n"); 
-		printf("        10.´òÓ¡");
-		printf("     ÇëÊäÈë¹¦ÄÜÑ¡Ïî(1..9)\n  ");
+    	printf("      å·¥äººå·¥èµ„ç®¡ç†\n");
+		printf("        1.åˆ›å»ºé“¾è¡¨\n");
+		printf("        2.å·¥å·æŸ¥æ‰¾\n");
+		printf("        3.æ¡ç›®æ’å…¥\n");
+		printf("        4.æ¡ç›®åˆ é™¤\n");
+		printf("        5.æ±‚å®å‘å·¥èµ„\n");
+		printf("        6.å·¥èµ„æ’åº\n");
+		printf("        7.å„é¡¹å·¥èµ„æ€»é¢\n"); 
+		printf("        8.ä¿å­˜\n");
+		printf("        9.é€€å‡º\n"); 
+		printf("        10.æ‰“å°");
+		printf("     è¯·è¾“å…¥åŠŸèƒ½é€‰é¡¹(1..9)\n  ");
         scanf("%d", &c);
         switch(c)
 	    {
@@ -364,7 +364,7 @@ int main()
   	        break;
         case 2:
             head = creat1();
-            printf("\nÇëÊäÈëĞèÒª²éÕÒµÄ¹¤ºÅ:"); 
+            printf("\nè¯·è¾“å…¥éœ€è¦æŸ¥æ‰¾çš„å·¥å·:"); 
             scanf("%ld", &s_num);
             search(head, s_num);
             break;
@@ -377,7 +377,7 @@ int main()
         case 4:
             head=creat1();
             print(head);
-            printf("\nÇëÊäÈëÉ¾³ıÑ§ÉúµÄÑ§ºÅ:");
+            printf("\nè¯·è¾“å…¥åˆ é™¤å­¦ç”Ÿçš„å­¦å·:");
             scanf("%ld",&del_num);
             head = del(head, del_num);
             print(head);
@@ -398,10 +398,10 @@ int main()
 		    save(head);
 			break;
 		case 9:
-		    printf("ÕıÔÚ¹Ø±ÕÏµÍ³...");
+		    printf("æ­£åœ¨å…³é—­ç³»ç»Ÿ...");
 			exit(0);break;
 		case 10: print(head);break;
-		default: printf("Ö¸Áî´íÎó£¡\n");
+		default: printf("æŒ‡ä»¤é”™è¯¯ï¼\n");
         }
     }
     return 0;
