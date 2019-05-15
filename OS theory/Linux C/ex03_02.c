@@ -5,6 +5,7 @@
 #include <syscall.h>
 #include <string.h>
 
+//not completed
 int main()
 {
     int fd[2];
