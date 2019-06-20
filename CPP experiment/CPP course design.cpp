@@ -250,6 +250,7 @@ void game::Initial_data()
 	snake[2][1] = 9;
     direction = RIGHT;
 
+    memset(item, 0, sizeof(item));
 
 }
 
@@ -274,22 +275,48 @@ void game::Food()
 void game::Item()
 {
     int i;
-    int randomnum;
-    randomnum = rand() % 10;
-
-	for(i = 0; i < bodynode; i++)
-	{
-        for (int j = 0; j < 7; j++)
+    int randomnum1, randomnum2, sign = 0;
+    randomnum1 = rand() % 100;
+    for (i = 0; i < 7; i++)
+    {
+        itemlife[i]--;
+        if (itemlife[i] == 0)
         {
-            if(snake[i][0] == item[j][0] && snake[i][1] == item[j][1] && randomnum > 6)
-    		{
-                food_x = 1 + rand() % (M-2);
-                food_y = 1 + rand() % (N-2);
-    		}
+            gotoxy(item[i][0], item[i][1]);
+            cout << " ";
+            item[i][0] = 0;
+            item[i][1] = 0;
         }
-	}
-    gotoxy(food_x, food_y);
-    cout << '$';
+    }
+
+    for (int j = 0; j < 7; j++)
+    {
+        if (randomnum1 < 95) break;//decide wheather creat item
+        if (item[j][0] != 0 && item[j][1] != 0) continue; //wheather the place has item
+        item[j][0] = 1 + rand() % (M-2);
+        item[j][1] = 1 + rand() % (N-2);
+        itemlife[j] = 30;
+        for(i = 0; i < bodynode; i++)
+    	{
+            if((snake[i][0] == item[j][0] && snake[i][1] == item[j][1]) || (item[j][0] == food_x && item[j][1] == food_y))
+        	{
+                item[j][0] = 1 + rand() % (M-2);
+                item[j][1] = 1 + rand() % (N-2);
+        	}
+    	}
+        if (randomnum1 == 96)
+        {
+            itemname[j] = 'H';
+        }
+        else
+        {
+            itemname[j] = 'B';
+        }
+        gotoxy(item[j][0], item[j][1]);
+        cout << itemname[j];
+
+        break;
+    }
 }
 
 void game::Drawmap()
@@ -307,12 +334,20 @@ void game::Drawmap()
     }
 }
 
-int game::Judgedie(player &t)//unfinished
+int game::Judgedie(player &t)
 {
     if (wall[snake[0][0]][snake[0][1]] == 1)
     {
         t.life_operate(-1);
         die = 1;
+    }
+    for(int i = 1; i < bodynode; i++)
+    {
+        if(snake[i][0] == snake[0][0] && snake[i][1] == snake[0][1])
+        {
+            t.life_operate(-1);
+            die=1;
+        }
     }
 }
 
@@ -320,7 +355,7 @@ void game::Move(player &t)
 {
     gotoxy(snake[bodynode - 1][0], snake[bodynode - 1][1]);
     cout << " ";      //cut the tail
-    if (bonus > 0) bonus--;  //dec bonus time
+    if (bonus > 0) bonus--;       //dec bonus time
     if(snake[0][0] == food_x && snake[0][1] == food_y)//if eat food
     {
         if (bonus == 0) score++;
@@ -334,7 +369,7 @@ void game::Move(player &t)
         if(snake[0][0] == item[i][0] && snake[0][1] == item[i][1])
         {
             if (itemname[i] == 'H') t.life_operate(1);
-            if (itemname[i] == 'B') bonus = 15;
+            if (itemname[i] == 'B') bonus = 50;
             item[i][0] = 0;
             item[i][1] = 0;
         }
@@ -488,12 +523,12 @@ A1: maingame.Initial_data();
         Sleep(200);//hlat after draw, ohterwise move would cut the tail
         maingame.Control();
         maingame.Move(p);
+        maingame.Item();
 
     } while(maingame.get_judgegame());
     system("cls");
     maingame.gotoxy(M/2, N/2);
-    cout << "GAME OVER" << endl
-    ;
+    cout << "GAME OVER" << endl;
 
 
     return 0;
