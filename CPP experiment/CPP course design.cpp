@@ -13,7 +13,7 @@
 #include <cstdlib>
 #include <windows.h>
 #include <conio.h>
-#include <vector>
+#include <fstream>
 
 #define M 22
 #define N 62 //length, width
@@ -25,27 +25,6 @@
 using namespace std;
 
 class player;
-
-typedef struct lln
-{
-    int num;
-    struct lln *next;
-} linknode;
-
-class linklist
-{
-private:
-    linknode *start;
-public:
-    linklist(linknode *);
-
-    linkini();
-    void nodeinsert();
-    void nodesort();
-    void save();
-};
-
-
 
 class game
 {
@@ -80,11 +59,12 @@ public:
     void Control();
     int Judgedie(player&);
     void Scoresort(player);
-    void Rank(linklist);
     void change_t(int);
     void change_dir(int);
     void print_scoreboard(player);
     void change_die();
+    void set_difficulty(int);
+    int get_difficulty();
     int get_judgegame();
     int relife(player&); //0 means not relife, 1 means relife
 
@@ -105,14 +85,16 @@ public:
 class player: public user
 {
 protected:
-    vector<int> score;
+    int score[50];
     int life;
 public:
+    player *next;
+
     player(string, string, int, int life = 3);
     void life_operate(int);
     int get_life();
-    vector<int> get_score();
-
+    void get_score(int[]);
+    void score_sort();
 
     friend void game::record_score(player&);
 };
@@ -124,6 +106,8 @@ public:
 
 };
 
+
+
 //<user part>
 
 user::user(string name1, string passwd1):name(name1), passwd(passwd1)
@@ -132,11 +116,34 @@ user::user(string name1, string passwd1):name(name1), passwd(passwd1)
 //<user part>
 
 
+
+
+
 //<player part>
+
 player::player(string name1, string passwd1, int score1, int life1):user(name1, passwd1)
 {
     life = life1;
-    score.push_back(score1);
+    memset(score, -1, sizeof(score));
+}
+
+void player::score_sort()
+{
+    int length = 0;
+    int temp = 0, t;
+    while (score[length++] != -1);
+    length--;
+    for (int i = 0; i < length; i++)
+    {
+        for (int j = i + 1; j < length; j++)
+        {
+            if (score[temp] < score[j]) temp = j;
+        }
+        t = score[i];
+        score[i] = score[temp];
+        score[temp] = t;
+        temp = i + 1;
+    }
 }
 
 void player::life_operate(int h)
@@ -149,11 +156,21 @@ int player::get_life()
     return life;
 }
 
-vector<int> player::get_score()
+void player::get_score(int a[])
 {
-    return score;
+    int length;
+    while (score[length++] != -1);
+    length--;
+    for (int i = 0; i < length; i++)
+    {
+        a[i] = score[i];
+    }
 }
 //<player part>
+
+
+
+
 
 
 //<game part>
@@ -178,6 +195,22 @@ void game::gotoxy(int i, int j)
 void game::Initial()
 {
     char c;
+    char title[5][51] =
+    {   0,0,0,1,1,1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
+        0,0,1,0,0,0,1,0,0,1,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,1,0,0,0,0,1,0,0,1,0,0,1,0,0,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
+        0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,1,0,0,0,1,1,1,1,1,1,1,0,0,0,1,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,1,1,1,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0};
+    for (int i = 0; i < 5; i++)
+    {
+        for (int j = 0; j < 51; j++)
+        {
+            if(title[i][j] == 0) cout <<" ";
+            if(title[i][j] == 1) cout <<"*";
+        }
+        cout << endl;
+    }
+    Sleep(1000);
     int function = 1;
     int i = 5, j = 18;    //i the row, j the column
     srand(time(NULL));
@@ -224,6 +257,41 @@ void game::Initial()
             }
         }
     } while(1);
+    system("cls");
+    int temp = 9;
+    gotoxy(5, 20);
+    cout << "Difficulty(1 ~ 9)  < ";
+    cout << temp << " >";
+    do
+    {
+        if (kbhit())
+        {
+            char d = getch();
+            if (d == 'a' || d == 'd')
+            {
+                gotoxy(5, 41);
+                if (d == 'a')
+                {
+                    if (temp > 1) temp--;
+                    else temp = 9;
+                }
+                if (d == 'd')
+                {
+                    if (temp < 9) temp++;
+                    else temp = 1;
+                }
+                cout << temp;
+                continue;
+            }
+            if (d == '\r')
+            {
+                difficulty = temp;
+                break;
+            }
+        }
+        Sleep(100);
+    } while(1);
+
 }
 
 void game::Wall1()
@@ -262,10 +330,15 @@ void game::Food()
 
 	for(i = 0; i < bodynode; i++)
 	{
-    	if(snake[i][0] == food_x && snake[i][1] == food_y)
+    	if(snake[i][0] == food_x && snake[i][1] == food_y) // avoid the snake
 		{
-            food_x = 1 + rand() % (M-2);
-            food_y = 1 + rand() % (N-2);
+            food_x = 1 + rand() % (M - 2);
+            food_y = 1 + rand() % (N - 2);
+		}
+        if(wall[snake[i][0]][snake[i][1]] == 1) // avoid the wall
+		{
+            food_x = 1 + rand() % (M - 2);
+            food_y = 1 + rand() % (N - 2);
 		}
 	}
     gotoxy(food_x, food_y);
@@ -328,7 +401,7 @@ void game::Drawmap()
         for(j = 0; j < N; j++)
         {
             if(wall[i][j] == 0) cout << " ";
-            else cout << '|';
+            else cout << '|';     // \x2580   \x2588
         }
         cout << endl;
     }
@@ -369,7 +442,7 @@ void game::Move(player &t)
         if(snake[0][0] == item[i][0] && snake[0][1] == item[i][1])
         {
             if (itemname[i] == 'H') t.life_operate(1);
-            if (itemname[i] == 'B') bonus = 50;
+            if (itemname[i] == 'B') bonus += 50;
             item[i][0] = 0;
             item[i][1] = 0;
         }
@@ -458,15 +531,24 @@ void game::Control()
 
 void game::record_score(player &p)
 {
-    p.score.push_back(score);
+    int i = 0;
+    while (p.score[i] > -1)
+    {
+        i++;
+    }
+    p.score[i] = score;
 }
 
 void game::print_scoreboard(player t)
 {
     gotoxy(M + 1, 5);
+    cout << "                                                            ";
+    gotoxy(M + 1, 5);
     cout << "SCORE:  " << score;
     cout << "         ";
-    cout << "life  " << t.get_life();
+    cout << "life:  " << t.get_life();
+    cout << "         ";
+    cout << "Bonus time:   " << bonus;
 }
 
 void game::change_die()
@@ -494,9 +576,67 @@ int game::relife(player &t)
     }
 }
 
+void game::set_difficulty(int t)
+{
+    difficulty = t;
+}
 
+int game::get_difficulty()
+{
+    return difficulty;
+}
 
 //<game part>
+
+
+class linklist
+{
+private:
+    player *start;
+public:
+    linklist(player *);
+
+    void linkini(string, string);
+    void nodeinsert(string, string);
+    void nodesort();
+    void save();
+    void read();
+};
+
+void linklist::linkini(string name1, string passwd1)
+{
+    start = new player(name1, passwd1, 0);
+}
+
+void linklist::nodeinsert(string name1, string passwd1)
+{
+    player *p;
+    p = start->next;
+    start->next = new player(name1, passwd1, 0);
+    start->next->next = p;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -504,6 +644,7 @@ int main()
 {
     player p("a", "a", 0);
     game maingame;
+    int i = 0;
 
     maingame.Initial();
     system("cls");
@@ -520,7 +661,7 @@ A1: maingame.Initial_data();
         {
             goto A1;
         }
-        Sleep(200);//hlat after draw, ohterwise move would cut the tail
+        Sleep(maingame.get_difficulty() * 50);//hlat after draw, ohterwise move would cut the tail
         maingame.Control();
         maingame.Move(p);
         maingame.Item();
@@ -529,7 +670,23 @@ A1: maingame.Initial_data();
     system("cls");
     maingame.gotoxy(M/2, N/2);
     cout << "GAME OVER" << endl;
+    maingame.record_score(p);
+    Sleep(2000);
 
+
+//Personal score board
+    system("cls");
+    p.score_sort();
+    int score[50];
+    memset(score, -1, sizeof(score));
+    p.get_score(score);
+    cout << "*********YOUR SCORE BOARD*********" << endl;
+    cout << "RANK               SCORE" << endl;
+    while (score[i] > -1)
+    {
+        cout << " " << i + 1 << "                    " << score[i] << endl;
+        i++;
+    }
 
     return 0;
 }
