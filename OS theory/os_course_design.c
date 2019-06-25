@@ -3,6 +3,8 @@
 #include <syscall.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #define VERYBIG 200
 
 char gpath[VERYBIG];
@@ -46,13 +48,13 @@ void static_order_analyse(char order[VERYBIG])
 	{
 		for (i = 3; i < VERYBIG; i++)
 		{
-			if(order[i] == '\n') break;
+			if(order[i] == '\0') break;
 			dir[j++] = order[i];
 		}
 		dir[j] = '\0';
 		shell_cd(dir);
 	}
-	if (order[0] == 'e' && order[1] == 'x' && order[2] == 'i' && order[3] == 't' && order[4] == '\n')
+	if (order[0] == 'e' && order[1] == 'x' && order[2] == 'i' && order[3] == 't' && order[4] == '\0')
 	{
 		shell_exit();
 	}
@@ -60,7 +62,7 @@ void static_order_analyse(char order[VERYBIG])
 	{
 		for (i = 6; i < VERYBIG; i++)
 		{
-			if(order[i] == '\n') break;
+			if(order[i] == '\0') break;
 			dir[j++] = order[i];
 		}
 		dir[j] = '\0';
@@ -71,7 +73,34 @@ void static_order_analyse(char order[VERYBIG])
 	}
 }
 
-
+void run_execute(char order[VERYBIG])
+{
+	pid_t pid;
+	char dir[2 * VERYBIG];
+	char *envp[2], p;
+	strcpy(dir, gpath);
+	strcat(dir, order);
+	if((access(dir, X_OK)) == -1)
+	{
+		printf("Not accessible");
+	}
+	else
+	{
+		pid = fork();
+		if(pid < 0)
+		{
+			printf("fork fail");
+		}
+		if(pid == 0)
+		{
+			p = gpath;
+			envp[0] = p;
+			envp[1] = 0;
+			execve(order, NULL, envp);
+		}
+	}
+}
+	
 
 int main()
 {
@@ -89,7 +118,7 @@ int main()
 			order[i] = ch;
 			ch = getchar();
 		}
-		order[i++] = '\n';
+		order[i++] = '\0';
 		order[i] = 0;
 		static_order_analyse(order);	
 		
