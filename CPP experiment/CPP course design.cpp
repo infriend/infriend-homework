@@ -79,7 +79,8 @@ protected:
     string passwd;
 public:
     user(string, string);
-
+    string getname();
+    string getpasswd();
 };
 
 class player: public user
@@ -95,6 +96,7 @@ public:
     int get_life();
     void get_score(int[]);
     void score_sort();
+    void input_score(int[]);
 
     friend void game::record_score(player&);
 };
@@ -113,6 +115,15 @@ public:
 user::user(string name1, string passwd1):name(name1), passwd(passwd1)
 {}
 
+string user::getname()
+{
+    return name;
+}
+
+string user::getpasswd()
+{
+    return passwd;
+}
 //<user part>
 
 
@@ -124,7 +135,10 @@ user::user(string name1, string passwd1):name(name1), passwd(passwd1)
 player::player(string name1, string passwd1, int score1, int life1):user(name1, passwd1)
 {
     life = life1;
-    memset(score, -1, sizeof(score));
+    for(int i = 0; i < 50; i++)
+    {
+        score[i] = -1;
+    }
 }
 
 void player::score_sort()
@@ -158,14 +172,21 @@ int player::get_life()
 
 void player::get_score(int a[])
 {
-    int length;
-    while (score[length++] != -1);
-    length--;
-    for (int i = 0; i < length; i++)
+    
+    for (int i = 0; i < 50; i++)
     {
         a[i] = score[i];
     }
 }
+
+void player::input_score(int a[])
+{
+    for (int i = 0; i < 50; i++)
+    {
+        score[i] = a[i];
+    }
+}
+
 //<player part>
 
 
@@ -594,13 +615,12 @@ class linklist
 private:
     player *start;
 public:
-    linklist(player *);
 
     void linkini(string, string);
     void nodeinsert(string, string);
-    void nodesort();
     void save();
     void read();
+    player* search(string, string);
 };
 
 void linklist::linkini(string name1, string passwd1)
@@ -608,7 +628,7 @@ void linklist::linkini(string name1, string passwd1)
     start = new player(name1, passwd1, 0);
 }
 
-void linklist::nodeinsert(string name1, string passwd1)
+void linklist::nodeinsert(string name1, string passwd1) //add new player
 {
     player *p;
     p = start->next;
@@ -616,33 +636,135 @@ void linklist::nodeinsert(string name1, string passwd1)
     start->next->next = p;
 }
 
+void linklist::read()
+{
+    ifstream fin("userdata.txt", ios::in);
+    char name1[30];
+    char passwd1[30];
+    char final[2] = "0";
+    int score1[50], sign = 1;
+    player *p1, *p2;
 
+    fin >> name1 >>passwd1;
+    for (int i = 0; i < 50; i++)
+    {
+        fin >> score1[i];
+    }
+    p1 = new player(name1, passwd1, 0);
+    p1->input_score(score1);
+    start->next = p1;
+    while(1)
+    {
+        fin >> name1 >> passwd1;
+        for (int i = 0; i < 50; i++)
+        {
+            fin >> score1[i];
+            //fin >> " ";
+        }
+        if (name1[0] == '0' && name1[1] == '\0') break;
+        p2 = new player(name1, passwd1, 0);
+        p2->input_score(score1);
+        p1->next = p2;
+        p1 = p2;
+    }
+    p1->next = NULL;
+    fin.close();
+}
 
+void linklist::save()
+{
+    player *p = start;
+    ofstream fout("userdata.txt", ios::out);
+    int score1[50];
+    p = p->next;
+    while(p)
+    {
+        fout << p->getname()<< "\n" << p->getpasswd() << "\n";
+        p->get_score(score1);
+        for (int i = 0; i < 50; i++)
+        {
+            fout << score1[i] << " ";
+        }
+        fout << '\n';
+        p = p->next;
+    }
+    fout << "0\n" << "0\n";
+    for (int i = 0; i < 50; i++)
+    {
+        fout << -1;
+    }
+    fout.close();
+}
 
+player* linklist::search(string u, string passwd1)
+{
+    int judge = 1;
+    player *p = start;
+    while (p)
+    {
+        if (p->getname() == u)
+        {
+            if (p->getpasswd() == passwd1) return p;
+            else
+            {
+                cout << "passwd error";
+                return NULL;
+            }
+        }
+        p = p->next;
+    }
+    return NULL;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+player* login(linklist &l)
+{
+    char name1[20];
+    string passwd1;
+    char pass[50];
+    char c;
+    string n;
+    player *p;
+    int i = 0;
+    l.linkini("default", "123456");
+    l.read();
+    cout << "Register?(y/n)";
+	cin >> c;
+	if (c == 'y')
+	{
+		cout << "Enter username: ";
+		cin >> n;
+		cout << "Enter password: ";
+		cin >> passwd1;
+		l.nodeinsert(n, passwd1);
+	}
+	system("cls");
+A2: cout << "USERNAME: ";
+    cin >> name1;
+    cout << "PASSWD: ";
+    cin >> pass;
+    passwd1 = pass;
+    n = name1;
+    p = l.search(n, passwd1);
+    if (p == NULL)
+    {
+        goto A2;
+    }
+    return p;
+}
 
 
 
 int main()
 {
-    player p("a", "a", 0);
+    player *p;
+
+    linklist list;
+    p = login(list);
+
+    //na = p->getname();
+    //pa = p->getpasswd();
+    system("cls");
+
     game maingame;
     int i = 0;
 
@@ -655,31 +777,31 @@ A1: maingame.Initial_data();
     do
     {
         maingame.Drawsnake();
-        maingame.print_scoreboard(p);
-        maingame.Judgedie(p);
-        if (maingame.relife(p))
+        maingame.print_scoreboard(*p);
+        maingame.Judgedie(*p);
+        if (maingame.relife(*p))
         {
             goto A1;
         }
         Sleep(maingame.get_difficulty() * 50);//hlat after draw, ohterwise move would cut the tail
         maingame.Control();
-        maingame.Move(p);
+        maingame.Move(*p);
         maingame.Item();
 
     } while(maingame.get_judgegame());
     system("cls");
     maingame.gotoxy(M/2, N/2);
     cout << "GAME OVER" << endl;
-    maingame.record_score(p);
+    maingame.record_score(*p);
     Sleep(2000);
 
 
 //Personal score board
     system("cls");
-    p.score_sort();
+    p->score_sort();
     int score[50];
     memset(score, -1, sizeof(score));
-    p.get_score(score);
+    p->get_score(score);
     cout << "*********YOUR SCORE BOARD*********" << endl;
     cout << "RANK               SCORE" << endl;
     while (score[i] > -1)
@@ -687,6 +809,8 @@ A1: maingame.Initial_data();
         cout << " " << i + 1 << "                    " << score[i] << endl;
         i++;
     }
+    
+    list.save();
 
     return 0;
 }
