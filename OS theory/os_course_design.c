@@ -5,9 +5,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#define VERYBIG 200
-
-char gpath[VERYBIG];
+#include <fcntl.h>
+#define VERYBIG 40
 
 void my_pwd()
 {
@@ -24,7 +23,7 @@ void ui()
 	gethostname(servername, VERYBIG);
 	printf("[%s@%s: ", getlogin(), servername);
 	my_pwd();
-	printf(" ] $");
+	printf(" ] $ ");
 }
 
 void shell_exit()
@@ -32,96 +31,131 @@ void shell_exit()
 	exit(0);
 }
 
-void shell_cd(char path[VERYBIG])
+void redir(int dir, char *filename)
 {
-	if ((chdir(path)) == -1)
+	int fid;
+	if (dir == 1)
 	{
-		printf("cd error\n");
+		fid = open(filename, O_RDONLY);
+		dup2(fid, 0);
+	}
+	if (dir == 2)
+	{
+		fid = open(filename, O_WRONLY|O_CREAT);
+		dup2(fid, 1);
 	}
 }
 
-void static_order_analyse(char order[VERYBIG])
+void pipe_func(char *order1, char *order2, char *const *e)
 {
-	int i, j = 0;
-	char dir[VERYBIG];
-	if (order[0] == 'c' && order[1] == 'd' && order[2] == ' ')
-	{
-		for (i = 3; i < VERYBIG; i++)
-		{
-			if(order[i] == '\0') break;
-			dir[j++] = order[i];
-		}
-		dir[j] = '\0';
-		shell_cd(dir);
-	}
-	if (order[0] == 'e' && order[1] == 'x' && order[2] == 'i' && order[3] == 't' && order[4] == '\0')
-	{
-		shell_exit();
-	}
-	if (order[0] == 'p' && order[1] == 'a' && order[2] == 't' && order[3] == 'h' && order[4] == ' ' && order[5] == '=')
-	{
-		for (i = 6; i < VERYBIG; i++)
-		{
-			if(order[i] == '\0') break;
-			dir[j++] = order[i];
-		}
-		dir[j] = '\0';
-		for (i = 0; i <= j; i++)
-		{
-			gpath[i] = dir[i];
-		}
-	}
-}
-
-void run_execute(char order[VERYBIG])
-{
+	int fd[2];
 	pid_t pid;
-	char dir[2 * VERYBIG];
-	char *envp[2], p;
-	strcpy(dir, gpath);
-	strcat(dir, order);
-	if((access(dir, X_OK)) == -1)
+	pid = fork();
+	if(pid > 0)
 	{
-		printf("Not accessible");
+		close(fd[0]);
+		dup2(fd[1], 1);
+		execve(order1, NULL, e);
+		waitpid(pid, NULL, 0);
 	}
-	else
+	if(pid == 0)
 	{
-		pid = fork();
-		if(pid < 0)
-		{
-			printf("fork fail");
-		}
-		if(pid == 0)
-		{
-			p = gpath;
-			envp[0] = p;
-			envp[1] = 0;
-			execve(order, NULL, envp);
-		}
+		close(fd[1]);
+		dup2(fd[0], 0);
+		execve(order2, NULL, e);
 	}
 }
-	
 
 int main()
 {
-	int i;
+	int i, j, pipe = 0;
 	char ch;
-	char order[VERYBIG];
+	char s[200];
+	char order1[VERYBIG];
+	char path[VERYBIG], gpath[VERYBIG];
+	pid_t pid;
 
 	while(1)
 	{
 		ui();
+		//chdir("/home/infriend/my_code");
+		//my_pwd();
 		ch = getchar();
-		for(i = 0; i < VERYBIG; i++)
+		i = 0;
+		while(i < 200 && ch != '\n')
 		{
-			if (ch == '\n') break;
-			order[i] = ch;
+			s[i] = ch;
 			ch = getchar();
+			i++;
 		}
-		order[i++] = '\0';
-		order[i] = 0;
-		static_order_analyse(order);	
+		s[i++] = '\0';
+		s[i] = '\0';		
+
+		i = 0;
+		while ((s[i] != ' ') && (s[i] != '\0'))
+		{
+			order1[i] = s[i];
+			i++;
+		}
+		order1[i] = '\0';
 		
+		j = 0;
+		if (strcmp(order1, "cd") == 0)
+		{
+			i++;
+			while (s[i]!='\0')
+			{
+				path[j++] = s[i++];	
+			}
+			path[j] = '\0';
+		    chdir(path);  
+		}
+		else
+		{
+			if (strcmp(order1, "exit") == 0)
+			{
+				shell_exit();
+			}
+			else
+			{
+				if (strcmp(order1, "path") == 0)
+				{
+					i++;
+					j = 0;
+					while(s[i] != '\0')
+					{
+						gpath[j++] = s[i++];
+					}
+					gpath[j] = '\0';
+				}
+				else
+				{
+					strcpy(path, "PATH=");
+					strcat(path, gpath);
+					char *envp[] = {path, 0};
+					pid = fork();
+					if (pid < 0) printf("Fork error!");
+					if (pid == 0)
+					{	
+
+						if (access(order1, X_OK) == 0)
+						{
+							i++;
+							if(s[i] == '<') redir(1, &s[i+1]);
+							if(s[i] == '>') redir(2, &s[i+1]);
+							if(s[i] == '|') 
+							{
+								pipe = 1;
+								i++;
+								pipe_func(order1, &s[i+1],envp);
+							}
+							if (pipe == 0) execve(order1, NULL, envp);
+						}
+					}
+					sleep(1);
+				}
+			}
+		}
 	}
 	return 0;
 }
