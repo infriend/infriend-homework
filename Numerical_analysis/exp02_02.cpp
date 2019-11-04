@@ -41,7 +41,7 @@ int main()
             result += temp * list[j--];
         }
     }
-    cout << result;
+    printf("y = %f", result);
 
     return 0;
 }
