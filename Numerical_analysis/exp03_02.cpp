@@ -39,7 +39,7 @@ int main()
         r2 = Trap(a, b, n);
         printf("T(%d) = %f\n", n, r2);
     }
-    printf("Result: T(%d) = %f\n", n, r2 + 1 / 3 * (r2 - r1));
+    printf("Result: %f\n", r2 + (r2 - r1) / 3);
 
     return 0;
 }
